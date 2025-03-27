@@ -6,7 +6,7 @@ output: html_document
 
 ```{r include = FALSE}
 knitr::opts_chunk$set(
-  eval = FALSE,
+  eval = TRUE,
   out.width = "80%",
   fig.asp = 0.618,
   fig.width = 10,
@@ -74,8 +74,22 @@ Answers to this question are stored in the `harass5` variable in our dataset.
 
 1.  What are the possible responses to this question and how many respondents chose each of these answers?
 
+```{r, echo=FALSE}
+gss16 %>%
+  count(harass5)
+```
+
+**The possible answers are "Does not apply", "Yes", and "No". Also, There are nearly 1400 NA answers in the dataset. 1136 said no, while 237 said yes. 96 of them said it did not apply.**
+
 2.  What percent of the respondents for whom this question is applicable\
     (i.e. excluding `NA`s and `Does not apply`s) have been harassed by their superiors or co-workers at their job.
+    
+```{r}
+237/1373
+
+```
+
+**Roughly 17% of respondents, when the answer was applicable to them, said they had been harrassed by superiors or co-workers at their job.**
 
 🧶 ✅ ⬆️ Knit, *commit, and push your changes to GitHub with an appropriate commit message. Make sure to commit and push all changed files so that your Git pane is cleared up afterwards.*
 
