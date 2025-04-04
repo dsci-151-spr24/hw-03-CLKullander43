@@ -112,6 +112,12 @@ mutate(email = emailmin + emailhr*60)
     Is the mean or the median a better measure of the typical among of time Americans spend on email weekly?
     Why?
 
+```{r message=FALSE, warning=FALSE}
+ggplot(gss16, aes(x=email)) +
+  geom_histogram() +
+  xlim(0, 2000)
+```
+
 ```{r eval=TRUE}
 gss16 %>%
   summarise(mean_email = mean(email, na.rm=TRUE), median_email = median(email, na.rm=TRUE))
@@ -151,30 +157,32 @@ gss16 %>%
 8.  Fit a model predicting `email` (number of minutes per week spent on email) from `educ` (number of years of education), `wrkstat`, and `snap_insta`.
     Interpret the slopes for each of these variables.
 
-```{r eval = FALSE}
 
-ggplot(data = gss16, aes(x=email, y=educ, color=snap_insta)) +
-  geom_point() +
-  geom_smooth(method="lm")
 
-```
-
-```{reval=FALSE}
+```{r message=FALSE}
 library(tidymodels)
-linear_reg() %>%
+email_fit <- linear_reg() %>%
   set_engine("lm") %>%
-  fit(email~educ + wrkstat + snap_insta, data = gss16) %>%
-  tidy()
+  fit(email~educ + snap_insta + wrkstat, data = gss16)
 
-ggplot(data = gss16, aes(x=email, y=educ, color=wrkstat)) +
-  geom_point()
+tidy(email_fit)
 ```
 
-
+**If all else is constant, the number of minutes spent on email is -229 + 29.6 X educ + 150 if snap_insta is yes, + one more variable that depends on work status. Other is + 33, Retired is + 68, School is -124, not working is -73, unemployed is + 118, fulltime work is + 366, and part time work is + 19. Already, I see some potential issues with this, as it doesn't make sense for email to be negative, but it is very likely for it to be negative when following this model.**
 
 9.  Create a predicted values vs. residuals plot for this model.
     Are there any issues with the model?
     If yes, describe them.
+
+```{r}
+email_fit_aug <- augment(email_fit$fit)
+
+ggplot(email_fit_aug, aes(x=.fitted, y=.resid)) +
+  geom_point(alpha =0.5) +
+  geom_hline(yintercept = 0, color = "gray", lty="dashed")
+```
+
+**There are some problems with it. It seems to have a linear relationship sloped down, and the data is very centralized just below the intercept. Also, it is skewed to the right. All this to say that that this model is not a very effective way of predicting time spent on email.**
 
 🧶 ✅ ⬆️ Knit, *commit, and push your changes to GitHub with an appropriate commit message. Make sure to commit and push all changed files so that your Git pane is cleared up afterwards.*
 
