@@ -159,7 +159,7 @@ ggplot(data = gss16, aes(x=email, y=educ, color=snap_insta)) +
 
 ```
 
-```{r}
+```{reval=FALSE}
 library(tidymodels)
 linear_reg() %>%
   set_engine("lm") %>%
@@ -204,13 +204,35 @@ Responses that were originally Don't know, No answer and Not applicable are alre
 10. In a new variable, recode `advfront` such that Strongly Agree and Agree are mapped to `"Yes"`, and Disagree and Strongly disagree are mapped to `"No"`.
     The remaining levels can be left as is.
     Don't overwrite the existing `advfront`, instead pick a different, informative name for your new variable.
+    
+```{r}
+gss16 <- gss16 %>%
+mutate(science_needed=case_when(advfront == "Strongly agree" ~ "Yes", advfront == "Agree" ~ "Yes", advfront == "Disagree" ~ "No", advfront == "Strongly disagree" ~ "No", advfront == "Dont know" ~ "Dont know"))
+
+
+```
+
 
 11. In a new variable, recode `polviews` such that Extremely liberal, Liberal, and Slightly liberal, are mapped to `"Liberal"`, and Slghtly conservative, Conservative, and Extrmly conservative disagree are mapped to `"Conservative"`.
     The remaining levels can be left as is.
     Make sure that the levels are in a reasonable order.
     Don't overwrite the existing `polviews`, instead pick a different, informative name for your new variable.
 
+```{r}
+gss16 <- gss16 %>%
+  mutate(lib_or_conserve=case_when(polviews == "Slightly liberal" | polviews == "Extremely liberal" | polviews == "Liberal" ~ "Liberal", polviews == "Extrmly conservative" | polviews == "Conservative" | polviews == "Slghtly conservative" ~ "Conservative", polviews == "Moderate" ~ "Moderate"))
+```
+
+
 12. Create a visualization that displays the relationship between these two new variables and interpret it.
+
+```{r}
+ggplot(gss16, aes(x=lib_or_conserve, fill = science_needed)) +
+         geom_bar(position = "fill")
+```
+
+**Conservatives are more likely to think that scientific research is unnecessary, whereas liberals are more likely to think that it is necessary. Also, there are more conservatives who are unsure than there are liberals who are unsure.**
+
 
 🧶 ✅ ⬆️ Knit, *commit, and push your changes to GitHub with an appropriate commit message. Make sure to commit and push all changed files so that your Git pane is cleared up afterwards and review the md document on GitHub to make sure you're happy with the final state of your work.*
 
