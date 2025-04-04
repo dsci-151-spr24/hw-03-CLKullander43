@@ -89,7 +89,7 @@ gss16 %>%
 
 ```
 
-**Roughly 17% of respondents, when the answer was applicable to them, said they had been harrassed by superiors or co-workers at their job.**
+**Roughly 17% of respondents, when the answer was applicable to them, said they had been harassed by superiors or co-workers at their job.**
 
 🧶 ✅ ⬆️ Knit, *commit, and push your changes to GitHub with an appropriate commit message. Make sure to commit and push all changed files so that your Git pane is cleared up afterwards.*
 
@@ -101,21 +101,76 @@ For example, if the response is 2.5 hrs, this would be recorded as `emailhr = 2`
 
 3.  Create a new variable called `email` that combines these two variables to reports the number of minutes the respondents spend on email weekly.
 
+```{r}
+gss16 <- gss16 %>%
+mutate(email = emailmin + emailhr*60)
+
+```
+
 4.  Visualize the distribution of this new variable.
     Find the mean and the median number of minutes respondents spend on email weekly.
     Is the mean or the median a better measure of the typical among of time Americans spend on email weekly?
     Why?
 
+```{r eval=TRUE}
+gss16 %>%
+  summarise(mean_email = mean(email, na.rm=TRUE), median_email = median(email, na.rm=TRUE))
+```
+
+**The mean weekly time spent on email is 416 minutes, while the median is 120 minutes. I think the median is more useful in this case. This is mainly because there are comparatively few Americans reaching the mean due to the number of Americans far beyond it. Becuase of this, I think the median is more accurate for the typical American in this case.**
+
+
 5.  Create another new variable, `snap_insta` that is coded as "Yes" if the respondent reported using any of Snapchat (`snapchat`) or Instagram (`instagrm`), and "No" if not.
     If the recorded value was `NA` for both of these questions, the value in your new variable should also be `NA`.
 
+```{r}
+gss16 <- gss16 %>%
+  mutate(snap_insta = ifelse(snapchat == "Yes" | instagrm == "Yes", "Yes", "No"))
+```
+
 6.  Calculate the percentage of Yes's for `snap_insta` among those who answered the question, i.e. excluding `NA`s.
+
+```{r}
+gss16 %>%
+  count(snap_insta)
+  514/1372
+```
+
+**Roughly 37 percent of the responses were Yes for snap_insta.**
 
 7.  What are the possible responses to the question *Last week were you working full time, part time, going to school, keeping house, or what?* and how many respondents chose each of these answers?
     Note that this information is stored in the `wrkstat` variable.
 
+```{r}
+gss16 %>%
+  count(wrkstat)
+```
+
+**The possible answers are Keeping house, retired, school, temp not working, unemployed, working fulltime, working parttime, and other. Of the respondents, 284 chose keeping house, 574 chose retired, 76 chose school, 57 said temp not working, 118 said unemployed or laid off, 1321 said working fulltime, 345 said working parttime, and 89 said other.**
+
 8.  Fit a model predicting `email` (number of minutes per week spent on email) from `educ` (number of years of education), `wrkstat`, and `snap_insta`.
     Interpret the slopes for each of these variables.
+
+```{r eval = FALSE}
+
+ggplot(data = gss16, aes(x=email, y=educ, color=snap_insta)) +
+  geom_point() +
+  geom_smooth(method="lm")
+
+```
+
+```{r}
+library(tidymodels)
+linear_reg() %>%
+  set_engine("lm") %>%
+  fit(email~educ + wrkstat + snap_insta, data = gss16) %>%
+  tidy()
+
+ggplot(data = gss16, aes(x=email, y=educ, color=wrkstat)) +
+  geom_point()
+```
+
+
 
 9.  Create a predicted values vs. residuals plot for this model.
     Are there any issues with the model?
